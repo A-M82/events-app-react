@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function SignUp() {
+function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -9,7 +9,7 @@ function SignUp() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3001/api/users", {
+      const response = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -20,10 +20,11 @@ function SignUp() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(data.message || "Login failed");
       }
 
-      setMessage("User created successfully");
+      localStorage.setItem("token", data.token);
+      setMessage("Login successful");
       setEmail("");
       setPassword("");
     } catch (error) {
@@ -33,7 +34,7 @@ function SignUp() {
 
   return (
     <div>
-      <h1>Sign Up</h1>
+      <h1>Sign In</h1>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -56,7 +57,7 @@ function SignUp() {
         <br />
         <br />
 
-        <button type="submit">Register</button>
+        <button type="submit">Login</button>
       </form>
 
       <p>{message}</p>
@@ -64,4 +65,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default SignIn;
