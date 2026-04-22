@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
- 
-function CreateEvent() {
+
+const API = "http://localhost:3001";
+
+export default function CreateEvent() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "",
@@ -10,239 +12,190 @@ function CreateEvent() {
     description: "",
     capacity: "",
   });
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
- 
+
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
- 
+
   async function handleSubmit() {
     if (!form.title.trim()) {
-      setMessage("Title is required.");
+      setError("Event title is required.");
       return;
     }
- 
+
     setLoading(true);
-    setMessage("");
- 
+    setError("");
+
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3001/api/events", {
+      const payload = {
+        title: form.title.trim(),
+        date: form.date || null,
+        location: form.location.trim() || null,
+        description: form.description.trim() || null,
+        capacity: form.capacity ? Number(form.capacity) : null,
+      };
+
+      const res = await fetch(`${API}/events`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...form,
-          capacity: form.capacity ? Number(form.capacity) : undefined,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
- 
-      const data = await response.json();
- 
-      if (!response.ok) {
+
+      if (!res.ok) {
+        const data = await res.json();
         throw new Error(data.message || "Failed to create event");
       }
- 
-      navigate(`/events/${data.id}`);
+
+      const created = await res.json();
+      navigate(`/events/${created.id}`);
     } catch (err) {
-      setMessage(err.message);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   }
- 
+
   return (
-    <div style={styles.page}>
-      <Link to="/events" style={styles.back}>← Back to Events</Link>
- 
-      <h1 style={styles.title}>Create Event</h1>
- 
-      <div style={styles.card}>
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>Title *</label>
-          <input
-            name="title"
-            type="text"
-            placeholder="Event title"
-            value={form.title}
-            onChange={handleChange}
-            style={styles.input}
-          />
+    <div className="min-h-screen bg-slate-50">
+      {/* Nav */}
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-slate-100">
+        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center">
+          <Link to="/events" className="btn-ghost">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            All Events
+          </Link>
         </div>
- 
-        <div style={styles.row}>
-          <div style={{ ...styles.fieldGroup, flex: 1 }}>
-            <label style={styles.label}>Date & Time</label>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-6 py-10 animate-fade-up">
+        <h1 className="font-display font-bold text-3xl text-slate-900 mb-8">
+          Create Event
+        </h1>
+
+        <div className="card p-8 flex flex-col gap-6">
+
+          {/* Title */}
+          <div>
+            <label className="form-label" htmlFor="title">
+              Title <span className="text-red-400">*</span>
+            </label>
             <input
-              name="date"
-              type="datetime-local"
-              value={form.date}
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Give your event a clear name"
+              value={form.title}
               onChange={handleChange}
-              style={styles.input}
+              className="form-input"
+              autoFocus
             />
           </div>
- 
-          <div style={{ ...styles.fieldGroup, flex: 1 }}>
-            <label style={styles.label}>Capacity</label>
+
+          {/* Date + Capacity row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="form-label" htmlFor="date">
+                Date & Time
+              </label>
+              <input
+                id="date"
+                name="date"
+                type="datetime-local"
+                value={form.date}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
+            <div>
+              <label className="form-label" htmlFor="capacity">
+                Capacity
+              </label>
+              <input
+                id="capacity"
+                name="capacity"
+                type="number"
+                placeholder="Max attendees (optional)"
+                value={form.capacity}
+                onChange={handleChange}
+                min={1}
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="form-label" htmlFor="location">
+              Location
+            </label>
             <input
-              name="capacity"
-              type="number"
-              placeholder="e.g. 100"
-              value={form.capacity}
+              id="location"
+              name="location"
+              type="text"
+              placeholder="Venue name or address"
+              value={form.location}
               onChange={handleChange}
-              min={1}
-              style={styles.input}
+              className="form-input"
             />
           </div>
+
+          {/* Description */}
+          <div>
+            <label className="form-label" htmlFor="description">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Tell attendees what this event is about…"
+              value={form.description}
+              onChange={handleChange}
+              rows={5}
+              className="form-input resize-none"
+            />
+          </div>
+
+          {/* Error message */}
+          {error && (
+            <div className="flex items-start gap-2.5 text-sm text-red-600
+                            bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="mt-0.5 flex-shrink-0">
+                <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              {error}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="20 18" strokeLinecap="round"/>
+                  </svg>
+                  Creating…
+                </>
+              ) : (
+                "Create Event"
+              )}
+            </button>
+            <Link to="/events" className="btn-secondary">
+              Cancel
+            </Link>
+          </div>
+
         </div>
- 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>Location</label>
-          <input
-            name="location"
-            type="text"
-            placeholder="Venue or address"
-            value={form.location}
-            onChange={handleChange}
-            style={styles.input}
-          />
-        </div>
- 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>Description</label>
-          <textarea
-            name="description"
-            placeholder="Tell people about this event…"
-            value={form.description}
-            onChange={handleChange}
-            rows={5}
-            style={{ ...styles.input, ...styles.textarea }}
-          />
-        </div>
- 
-        {message && <p style={styles.message}>{message}</p>}
- 
-        <div style={styles.actions}>
-          <button
-            style={styles.submitBtn}
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? "Creating…" : "Create Event"}
-          </button>
-          <button
-            style={styles.cancelBtn}
-            onClick={() => navigate("/events")}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
- 
-const styles = {
-  page: {
-    maxWidth: 680,
-    margin: "0 auto",
-    padding: "48px 32px",
-    textAlign: "left",
-  },
-  back: {
-    display: "inline-block",
-    marginBottom: 24,
-    color: "var(--text)",
-    textDecoration: "none",
-    fontSize: 14,
-    fontWeight: 500,
-  },
-  title: {
-    margin: "0 0 32px",
-    fontSize: 40,
-    letterSpacing: "-1px",
-    color: "var(--text-h)",
-    fontWeight: 500,
-  },
-  card: {
-    padding: 40,
-    borderRadius: 16,
-    border: "1px solid var(--border)",
-    background: "var(--bg)",
-    display: "flex",
-    flexDirection: "column",
-    gap: 20,
-  },
-  fieldGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-  },
-  row: {
-    display: "flex",
-    gap: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: "var(--text-h)",
-    letterSpacing: "0.02em",
-  },
-  input: {
-    padding: "10px 14px",
-    borderRadius: 8,
-    border: "1px solid var(--border)",
-    background: "var(--bg)",
-    color: "var(--text-h)",
-    fontFamily: "inherit",
-    fontSize: 15,
-    outline: "none",
-    transition: "border-color 0.2s",
-    width: "100%",
-    boxSizing: "border-box",
-  },
-  textarea: {
-    resize: "vertical",
-    lineHeight: "150%",
-  },
-  message: {
-    margin: 0,
-    fontSize: 14,
-    color: "var(--accent)",
-    padding: "10px 14px",
-    borderRadius: 8,
-    background: "var(--accent-bg)",
-  },
-  actions: {
-    display: "flex",
-    gap: 12,
-    paddingTop: 8,
-  },
-  submitBtn: {
-    padding: "11px 24px",
-    borderRadius: 8,
-    border: "2px solid var(--accent-border)",
-    background: "var(--accent-bg)",
-    color: "var(--accent)",
-    fontFamily: "inherit",
-    fontSize: 15,
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "background 0.2s",
-  },
-  cancelBtn: {
-    padding: "11px 24px",
-    borderRadius: 8,
-    border: "2px solid var(--border)",
-    background: "transparent",
-    color: "var(--text)",
-    fontFamily: "inherit",
-    fontSize: 15,
-    cursor: "pointer",
-  },
-};
- 
-export default CreateEvent;

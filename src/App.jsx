@@ -8,14 +8,20 @@ import CreateEvent from "./pages/CreateEvent";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/sign-in" replace />} />
+      {/* Home → Events list */}
+      <Route path="/" element={<Navigate to="/events" replace />} />
  
+      {/* Auth */}
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/sign-in" element={<SignIn />} />
  
+      {/* Events */}
       <Route path="/events" element={<EventsList />} />
       <Route path="/events/create" element={<CreateEvent />} />
       <Route path="/events/:id" element={<EventDetails />} />
+ 
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to="/events" replace />} />
     </Routes>
   );
 }
