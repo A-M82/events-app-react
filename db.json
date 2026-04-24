@@ -1,0 +1,36 @@
+{
+  "events": [
+    {
+      "id": "1",
+      "title": "React & Modern Frontend Meetup",
+      "date": "2025-06-14T18:30:00",
+      "location": "Tech Hub Berlin, Mitte",
+      "description": "A casual evening for frontend engineers. We'll cover React 19 features, new compiler internals, and live demos of component patterns. Bring a laptop if you want to follow along.",
+      "capacity": 40
+    },
+    {
+      "id": "2",
+      "title": "UX Design Sprint Workshop",
+      "date": "2025-06-21T10:00:00",
+      "location": "Factory Berlin, Görlitzer Park",
+      "description": "A full-day hands-on workshop walking through the Google Ventures design sprint methodology. Teams will tackle a real product challenge from problem framing to prototype in one day.",
+      "capacity": 20
+    },
+    {
+      "id": "3",
+      "title": "Node.js & API Architecture Talk",
+      "date": "2025-07-03T19:00:00",
+      "location": "Co-Up Coworking, Kreuzberg",
+      "description": "Deep dive into building scalable REST and GraphQL APIs with Node.js. Topics include middleware design, auth patterns, rate limiting, and deployment on Railway.",
+      "capacity": 60
+    },
+    {
+      "id": "4",
+      "title": "Open Source Contribution Day",
+      "date": "2025-07-12T09:00:00",
+      "location": "Betahaus, Kreuzberg",
+      "description": "Spend the day contributing to open source projects. Maintainers of popular JS/TS libraries will be on hand to guide first-time contributors through the PR process.",
+      "capacity": 50
+    }
+  ]
+}
