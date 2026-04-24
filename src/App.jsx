@@ -10,13 +10,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/events" replace />} />
-
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/sign-in" element={<SignIn />} />
-
       <Route path="/events" element={<EventsList />} />
       <Route path="/events/:id" element={<EventDetails />} />
-
       <Route
         path="/events/create"
         element={
@@ -25,7 +22,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
       <Route path="*" element={<Navigate to="/events" replace />} />
     </Routes>
   );
