@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
  
-const API = "http://localhost:3001";
+const API = "http://localhost:3001/api";
  
 function formatDate(dateStr) {
   if (!dateStr) return null;
@@ -93,7 +93,7 @@ export default function EventsList() {
         const res = await fetch(`${API}/events`);
         if (!res.ok) throw new Error("Failed to load events");
         const data = await res.json();
-        setEvents(data);
+        setEvents(data.results);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -145,7 +145,7 @@ export default function EventsList() {
           <div className="card p-6 text-center border-red-100">
             <p className="text-sm text-red-500 font-medium">{error}</p>
             <p className="text-xs text-slate-400 mt-1">
-              Make sure your local API is running: <code className="bg-slate-100 px-1 rounded">npx json-server db.json --port 3001</code>
+              Make sure your local API is running: <code className="bg-slate-100 px-1 rounded">npm run dev in events-api</code>
             </p>
           </div>
         )}

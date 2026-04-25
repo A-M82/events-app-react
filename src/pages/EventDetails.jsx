@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
  
-const API = "http://localhost:3001";
+const API = "http://localhost:3001/api";
  
 export default function EventDetails() {
   const { id } = useParams();
@@ -28,17 +28,31 @@ export default function EventDetails() {
   }, [id]);
  
   async function handleDelete() {
-    if (!window.confirm("Delete this event? This can't be undone.")) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`${API}/events/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete event");
-      navigate("/events");
-    } catch (err) {
-      setError(err.message);
-      setDeleting(false);
+  if (!window.confirm("Delete this event? This can't be undone.")) return;
+
+  setDeleting(true);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API}/events/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || "Failed to delete event");
     }
+
+    navigate("/events");
+  } catch (err) {
+    setError(err.message);
+    setDeleting(false);
   }
+}
  
   if (loading) {
     return (
