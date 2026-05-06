@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
+
+interface RegisterResponse {
+  message?: string;
+}
 
 function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     try {
@@ -17,7 +21,7 @@ function SignUp() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data: RegisterResponse = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || "Registration failed");
@@ -27,7 +31,11 @@ function SignUp() {
       setEmail("");
       setPassword("");
     } catch (error) {
-      setMessage(error.message);
+      if (error instanceof Error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Something went wrong");
+      }
     }
   }
 

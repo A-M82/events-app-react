@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { apiFetch } from "../services/api";
 
-function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+interface LoginResponse {
+  token: string;
+  message?: string;
+}
 
-  async function handleSubmit(e) {
+function SignIn() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     try {
@@ -15,18 +20,23 @@ function SignIn() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
 
       localStorage.setItem("token", data.token);
+
       setMessage("Login successful");
       setEmail("");
       setPassword("");
     } catch (error) {
-      setMessage(error.message);
+      if (error instanceof Error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Something went wrong");
+      }
     }
   }
 
